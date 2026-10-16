@@ -32,7 +32,7 @@ fun HomeScreen(currentBookId: String, isPlaying: Boolean, libraryIds: Set<String
     var query by remember { mutableStateOf("") }
     var progress by remember { mutableFloatStateOf(.28f) }
     val current = BookData.find(currentBookId) ?: BookData.catalog.first()
-    val books = BookData.catalog.filter { it.title.contains(query, true) || it.author.contains(query, true) || it.category.contains(query, true) || it.languageName.contains(query, true) }
+    val books = BookData.catalog.filter { book -> query.isBlank() || book.title.contains(query.trim(), true) || book.author.contains(query.trim(), true) || book.category.contains(query.trim(), true) || book.languageName.contains(query.trim(), true) || book.synopsis.contains(query.trim(), true) || book.fullStoryText.contains(query.trim(), true) }
     Scaffold(containerColor = HBg, bottomBar = {
         Column {
             Surface(color = Color(0xFF222228)) {

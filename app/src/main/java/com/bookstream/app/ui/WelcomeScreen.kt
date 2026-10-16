@@ -97,7 +97,10 @@ fun BookStreamRoot(initialSession: LocalUserSession? = null) {
                     error
                 },
                 onGuest = { LocalAccountManager.signInGuest(context); activeSession = LocalAccountManager.currentSession(context); route = AppRoute.Home },
-                onGoogle = { LocalAccountManager.googleDemoSession(context); activeSession = LocalAccountManager.currentSession(context); route = AppRoute.Home },
+                onGoogle = { email ->
+                    val error = LocalAccountManager.googleDemoSession(context, email)
+                    if (error == null) { activeSession = LocalAccountManager.currentSession(context); route = AppRoute.Home }
+                },
                 onPhoneOtp = { phone, otp ->
                     val error = LocalAccountManager.signInPhoneOtp(context, phone, otp)
                     if (error == null) { activeSession = LocalAccountManager.currentSession(context); route = AppRoute.Home }

@@ -27,7 +27,7 @@ private val AuthMuted = Color(0xFF9A9AA3)
 fun AuthScreen(
     onSubmit: (String, String, String, Boolean) -> String?,
     onGuest: () -> Unit,
-    onGoogle: () -> Unit,
+    onGoogle: (String) -> Unit,
     onPhoneOtp: (String, String) -> String?,
     onResetPassword: (String, String, String) -> String?
 ) {
@@ -40,12 +40,37 @@ fun AuthScreen(
     var showPassword by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf("") }
     var phoneMode by remember { mutableStateOf(false) }
+    var otpSent by remember { mutableStateOf(false) }
+    var googleDialog by remember { mutableStateOf(false) }
+    var googleEmail by remember { mutableStateOf("") }
+    var googleMessage by remember { mutableStateOf("") }
     var otp by remember { mutableStateOf("123456") }
     var resetDialog by remember { mutableStateOf(false) }
     var resetIdentifier by remember { mutableStateOf("") }
     var resetPassword by remember { mutableStateOf("") }
     var resetConfirm by remember { mutableStateOf("") }
     var resetMessage by remember { mutableStateOf("") }
+
+    if (googleDialog) {
+        AlertDialog(
+            onDismissRequest = { googleDialog = false; googleMessage = "" },
+            title = { Text("Choose Google account") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("Confirm an email to continue. This demo does not connect to Google or verify the account.", fontSize = 13.sp)
+                    OutlinedTextField(value = googleEmail, onValueChange = { googleEmail = it.trim(); googleMessage = "" }, label = { Text("Google account email") }, singleLine = true)
+                    if (googleMessage.isNotBlank()) Text(googleMessage, color = AuthRed, fontSize = 12.sp)
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    if (!android.util.Patterns.EMAIL_ADDRESS.matcher(googleEmail.trim()).matches()) googleMessage = "Enter a valid email address."
+                    else { googleDialog = false; googleMessage = ""; onGoogle(googleEmail.trim()) }
+                }) { Text("Continue", color = AuthRed) }
+            },
+            dismissButton = { TextButton(onClick = { googleDialog = false; googleMessage = "" }) { Text("Cancel") } }
+        )
+    }
 
     if (resetDialog) {
         AlertDialog(
@@ -87,7 +112,7 @@ fun AuthScreen(
         Surface(color = Color(0xFF19191E), shape = RoundedCornerShape(24.dp), modifier = Modifier.fillMaxWidth()) {
             Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(when { phoneMode -> "Continue with phone"; signUp -> "Create your account"; else -> "Welcome back" }, color = Color.White, fontSize = 23.sp, fontWeight = FontWeight.Bold)
-                Text(if (phoneMode) "Demo OTP for testing: 123456" else if (signUp) "Create a private account on this device." else "Sign in with your registered email or phone.", color = AuthMuted, fontSize = 13.sp)
+                Text(if (phoneMode) { if (otpSent) "Demo OTP sent. Enter the 6-digit code to verify." else "Enter your 10-digit mobile number to request an OTP." } else if (signUp) "Create a private account on this device." else "Sign in with your registered email or phone.", color = AuthMuted, fontSize = 13.sp)
                 if (!phoneMode) {
                     TabRow(selectedTabIndex = if (signUp) 1 else 0, containerColor = Color(0xFF19191E), contentColor = AuthRed) {
                         Tab(selected = !signUp, onClick = { signUp = false; message = "" }, text = { Text("Sign In") })
@@ -109,14 +134,34 @@ fun AuthScreen(
                     }
                     TextButton(onClick = { resetIdentifier = identifier; resetDialog = true; resetMessage = "" }, modifier = Modifier.align(Alignment.End)) { Text("Forgot Password?", color = Color(0xFFFF777F)) }
                 } else {
-                    AuthField(identifier, { identifier = it }, "Mobile number")
-                    OutlinedTextField(value = otp, onValueChange = { otp = it.filter(Char::isDigit).take(6) }, modifier = Modifier.fillMaxWidth(), label = { Text("Enter OTP") }, singleLine = true, colors = authFieldColors())
+                    OutlinedTextField(
+                        value = identifier,
+                        onValueChange = { identifier = it.filter(Char::isDigit).take(10); message = "" },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text("Enter 10-digit mobile number") },
+                        singleLine = true,
+                        colors = authFieldColors()
+                    )
+                    if (otpSent) {
+                        OutlinedTextField(value = otp, onValueChange = { otp = it.filter(Char::isDigit).take(6) },
+                            modifier = Modifier.fillMaxWidth(), label = { Text("6-digit OTP") }, singleLine = true, colors = authFieldColors())
+                    }
                     if (message.isNotBlank()) Text(message, color = Color(0xFFFF777F), fontSize = 12.sp)
-                    Button(onClick = { message = onPhoneOtp(identifier, otp) ?: "" }, modifier = Modifier.fillMaxWidth().height(52.dp), shape = RoundedCornerShape(14.dp), colors = ButtonDefaults.buttonColors(containerColor = AuthRed)) {
-                        Text("Verify & Login", fontWeight = FontWeight.Bold)
+                    if (!otpSent) {
+                        Button(onClick = { otp = "123456"; otpSent = true; message = "Demo OTP is 123456. No SMS is sent." },
+                            enabled = identifier.length == 10, modifier = Modifier.fillMaxWidth().height(52.dp),
+                            shape = RoundedCornerShape(14.dp), colors = ButtonDefaults.buttonColors(containerColor = AuthRed)) {
+                            Text("Send OTP", fontWeight = FontWeight.Bold)
+                        }
+                    } else {
+                        Button(onClick = { message = if (otp.length != 6) "Enter the 6-digit OTP." else onPhoneOtp(identifier, otp) ?: "" },
+                            enabled = otp.length == 6, modifier = Modifier.fillMaxWidth().height(52.dp),
+                            shape = RoundedCornerShape(14.dp), colors = ButtonDefaults.buttonColors(containerColor = AuthRed)) {
+                            Text("Verify OTP", fontWeight = FontWeight.Bold)
+                        }
                     }
                     Text("Demo only: OTP 123456 is simulated; no SMS is sent.", color = AuthMuted, fontSize = 11.sp)
-                    TextButton(onClick = { phoneMode = false; message = "" }) { Text("Back to email/password", color = Color(0xFFFF777F)) }
+                    TextButton(onClick = { phoneMode = false; otpSent = false; message = "" }) { Text("Back to email/password", color = Color(0xFFFF777F)) }
                 }
             }
         }
@@ -128,17 +173,17 @@ fun AuthScreen(
                 HorizontalDivider(Modifier.weight(1f), color = Color(0xFF38383F))
             }
             Spacer(Modifier.height(12.dp))
-            OutlinedButton(onClick = onGoogle, modifier = Modifier.fillMaxWidth().height(50.dp), shape = RoundedCornerShape(13.dp)) {
+            OutlinedButton(onClick = { googleEmail = identifier.takeIf { it.contains("@") } ?: ""; googleDialog = true; googleMessage = "" }, modifier = Modifier.fillMaxWidth().height(50.dp), shape = RoundedCornerShape(13.dp)) {
                 Text("G   Continue with Google", color = Color.White, fontWeight = FontWeight.SemiBold)
             }
             Spacer(Modifier.height(9.dp))
-            OutlinedButton(onClick = { phoneMode = true; message = ""; otp = "123456" }, modifier = Modifier.fillMaxWidth().height(50.dp), shape = RoundedCornerShape(13.dp)) {
+            OutlinedButton(onClick = { phoneMode = true; otpSent = false; identifier = ""; message = ""; otp = "" }, modifier = Modifier.fillMaxWidth().height(50.dp), shape = RoundedCornerShape(13.dp)) {
                 Text("☎   Continue with Phone / OTP", color = Color.White, fontWeight = FontWeight.SemiBold)
             }
         }
         Spacer(Modifier.height(16.dp))
         Text("Browse as Guest  →", color = Color(0xFFFF777F), fontSize = 15.sp, fontWeight = FontWeight.Bold, modifier = Modifier.clickable(onClick = onGuest).padding(12.dp))
-        Text("Local demo accounts are encrypted on this device. Google and OTP buttons create simulated sessions, not verified provider identities.", color = AuthMuted, fontSize = 11.sp, lineHeight = 16.sp)
+        Text("Local demo accounts are encrypted on this device. Google account confirmation and OTP are simulated; no Google sign-in or SMS verification occurs.", color = AuthMuted, fontSize = 11.sp, lineHeight = 16.sp)
     }
 }
 @Composable

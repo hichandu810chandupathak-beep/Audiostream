@@ -93,9 +93,14 @@ object LocalAccountManager {
     fun logout(context: Context) {
         runCatching { prefs(context).edit().putBoolean(ACTIVE, false).remove(NAME).remove(IDENTIFIER).remove(GUEST).apply() }
     }
-    fun googleDemoSession(context: Context) {
-        runCatching { saveSession(prefs(context), "Google User", "google-demo@bookstream.local", false) }
-    }
+    fun googleDemoSession(context: Context, email: String): String? = try {
+        val cleanEmail = email.trim().lowercase()
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(cleanEmail).matches()) "Enter a valid email address."
+        else {
+            saveSession(prefs(context), "Google · ${cleanEmail.substringBefore("@")}", cleanEmail, false)
+            null
+        }
+    } catch (_: Exception) { "Could not save this local demo session." }
 
     fun signInPhoneOtp(context: Context, phone: String, otp: String): String? = try {
         val normalized = normalize(phone)
