@@ -15,6 +15,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.AsyncImage
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -139,6 +141,7 @@ private fun BookSection(title: String, books: List<BookItem>, currentBookId: Str
             items(books, key = { it.id }) { book ->
                 Column(Modifier.width(142.dp).clickable { onBookClick(book.id) }) {
                     Box(Modifier.fillMaxWidth().height(if (showProgress) 126.dp else 154.dp).clip(RoundedCornerShape(15.dp)).background(book.coverColor).padding(12.dp)) {
+                        if (book.coverUrl != null) AsyncImage(model = book.coverUrl, contentDescription = book.title, modifier = Modifier.matchParentSize(), contentScale = ContentScale.Crop)
                         Text(book.category.uppercase(), color = Color.White.copy(alpha = .75f), fontSize = 9.sp, fontWeight = FontWeight.Bold, maxLines = 1)
                         Text(book.icon, fontSize = 28.sp, modifier = Modifier.align(Alignment.Center))
                         Text(book.title, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.ExtraBold, modifier = Modifier.align(Alignment.BottomStart), maxLines = 3, overflow = TextOverflow.Ellipsis)

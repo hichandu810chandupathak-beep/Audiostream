@@ -5,7 +5,8 @@ import androidx.compose.ui.graphics.Color
 data class BookItem(
     val id: String, val title: String, val author: String, val category: String,
     val duration: String, val synopsis: String, val fullStoryText: String,
-    val coverColor: Color, val icon: String, val languageTag: String = "hi-IN"
+    val coverColor: Color, val icon: String, val languageTag: String = "hi-IN",
+    val coverUrl: String? = null, val previewUrl: String? = null, val isOnline: Boolean = false
 ) {
     val languageName: String get() = when {
         languageTag.startsWith("hi") -> "हिंदी"

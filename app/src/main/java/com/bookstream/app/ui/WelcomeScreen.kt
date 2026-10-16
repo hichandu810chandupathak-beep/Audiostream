@@ -66,92 +66,84 @@ fun BookStreamRoot(initialSession: LocalUserSession? = null) {
     var activeSession by remember { mutableStateOf(initialSession) }
     var route by remember { mutableStateOf(if (initialSession != null) AppRoute.Home else AppRoute.Welcome) }
     var selectedBookId by remember { mutableStateOf(BookData.catalog.first().id) }
+    var selectedOnlineBook by remember { mutableStateOf<BookItem?>(null) }
     var currentBookId by remember { mutableStateOf(BookData.catalog.first().id) }
     var isPlaying by remember { mutableStateOf(false) }
     var libraryIds by remember { mutableStateOf(LocalAccountManager.savedBookIds(context)) }
+    var onlineResults by remember { mutableStateOf<List<BookItem>>(emptyList()) }
+    var onlineError by remember { mutableStateOf<String?>(null) }
     val narrator = remember { AudioNarratorManager(context.applicationContext) }
 
     DisposableEffect(narrator) {
-        narrator.setStateListener { playing, id ->
-            isPlaying = playing
-            if (id != null) currentBookId = id
-        }
-        onDispose {
-            narrator.setStateListener(null)
-            narrator.release()
-        }
+        narrator.setStateListener { playing, id -> isPlaying = playing; if (id != null) currentBookId = id }
+        onDispose { narrator.setStateListener(null); narrator.release() }
     }
 
+    fun bookById(id: String): BookItem? = BookData.find(id) ?: onlineResults.firstOrNull { it.id == id }
+    fun playBook(id: String) {
+        bookById(id)?.let { book ->
+            currentBookId = id
+            isPlaying = true
+            narrator.speak(book.fullStoryText, id, book.languageTag)
+        }
+    }
     Crossfade(targetState = route, label = "bookStreamNavigation") { screen ->
         when (screen) {
             AppRoute.Welcome -> WelcomeScreen(onGetStarted = { route = AppRoute.Auth })
             AppRoute.Auth -> AuthScreen(
                 onSubmit = { name, identifier, password, signUp ->
-                    val error = if (signUp) LocalAccountManager.register(context, name, identifier, password)
-                        else LocalAccountManager.signIn(context, identifier, password)
-                    if (error == null) {
-                        activeSession = LocalAccountManager.currentSession(context)
-                        route = AppRoute.Home
-                    }
+                    val error = if (signUp) LocalAccountManager.register(context, name, identifier, password) else LocalAccountManager.signIn(context, identifier, password)
+                    if (error == null) { activeSession = LocalAccountManager.currentSession(context); route = AppRoute.Home }
                     error
                 },
-                onGuest = {
-                    LocalAccountManager.signInGuest(context)
-                    activeSession = LocalAccountManager.currentSession(context)
-                    route = AppRoute.Home
-                }
+                onGuest = { LocalAccountManager.signInGuest(context); activeSession = LocalAccountManager.currentSession(context); route = AppRoute.Home },
+                onGoogle = { LocalAccountManager.googleDemoSession(context); activeSession = LocalAccountManager.currentSession(context); route = AppRoute.Home },
+                onPhoneOtp = { phone, otp ->
+                    val error = LocalAccountManager.signInPhoneOtp(context, phone, otp)
+                    if (error == null) { activeSession = LocalAccountManager.currentSession(context); route = AppRoute.Home }
+                    error
+                },
+                onResetPassword = { identifier, newPassword, _ -> LocalAccountManager.resetPassword(context, identifier, newPassword) }
             )
             AppRoute.Home -> HomeScreen(
-                currentBookId = currentBookId,
-                isPlaying = isPlaying,
-                libraryIds = libraryIds,
-                userDisplayName = activeSession?.name ?: "BookStream reader",
-                isGuest = activeSession?.isGuest ?: true,
-                onBookClick = { id -> selectedBookId = id; route = AppRoute.Detail },
-                onPlay = { id ->
-                    BookData.find(id)?.let { book ->
-                        currentBookId = id
-                        isPlaying = true
-                        narrator.speak(book.fullStoryText, id, book.languageTag)
-                    }
+                currentBookId = currentBookId, isPlaying = isPlaying, libraryIds = libraryIds,
+                userDisplayName = activeSession?.name ?: "BookStream reader", isGuest = activeSession?.isGuest ?: true,
+                onBookClick = { id ->
+                    selectedOnlineBook = onlineResults.firstOrNull { it.id == id }
+                    selectedBookId = id
+                    route = AppRoute.Detail
                 },
+                onPlay = { playBook(it) },
                 onPause = { narrator.pause(); isPlaying = false },
-                onResume = {
-                    BookData.find(currentBookId)?.let { book ->
-                        narrator.resumeOrSpeak(book.fullStoryText, currentBookId, book.languageTag)
-                        isPlaying = true
-                    }
-                },
+                onResume = { bookById(currentBookId)?.let { narrator.resumeOrSpeak(it.fullStoryText, currentBookId, it.languageTag); isPlaying = true } },
                 onLibraryClick = { id ->
                     val updated = if (id in libraryIds) libraryIds - id else libraryIds + id
-                    libraryIds = updated
-                    LocalAccountManager.saveBookIds(context, updated)
+                    libraryIds = updated; LocalAccountManager.saveBookIds(context, updated)
                 },
                 onLogout = {
-                    narrator.stop()
-                    LocalAccountManager.logout(context)
-                    activeSession = null
-                    isPlaying = false
-                    route = AppRoute.Auth
+                    narrator.stop(); LocalAccountManager.logout(context); activeSession = null; isPlaying = false
+                    onlineResults = emptyList(); route = AppRoute.Auth
+                },
+                onlineResults = onlineResults,
+                onlineError = onlineError,
+                onSearchOnline = { query ->
+                    onlineError = null
+                    DynamicBookRepository.search(query) { results, error ->
+                        onlineResults = results
+                        onlineError = error ?: if (results.isEmpty()) "No online books found. Try another title or author." else null
+                    }
                 }
             )
             AppRoute.Detail -> BookDetailScreen(
-                bookId = selectedBookId,
+                bookId = selectedBookId, bookOverride = selectedOnlineBook,
                 isPlaying = isPlaying && currentBookId == selectedBookId,
                 isInLibrary = selectedBookId in libraryIds,
                 onBack = { route = AppRoute.Home },
-                onPlay = { id ->
-                    BookData.find(id)?.let { book ->
-                        currentBookId = id
-                        isPlaying = true
-                        narrator.speak(book.fullStoryText, id, book.languageTag)
-                    }
-                },
+                onPlay = { playBook(it) },
                 onPause = { narrator.pause(); isPlaying = false },
                 onToggleLibrary = { id ->
                     val updated = if (id in libraryIds) libraryIds - id else libraryIds + id
-                    libraryIds = updated
-                    LocalAccountManager.saveBookIds(context, updated)
+                    libraryIds = updated; LocalAccountManager.saveBookIds(context, updated)
                 }
             )
         }

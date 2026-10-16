@@ -11,6 +11,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.AsyncImage
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -32,6 +34,7 @@ fun BookDetailScreen(bookId: String, isPlaying: Boolean, isInLibrary: Boolean, o
         }
         Box(Modifier.fillMaxWidth().padding(horizontal = 20.dp).height(230.dp).clip(RoundedCornerShape(26.dp)).background(book.coverColor),
             contentAlignment = Alignment.Center) {
+            if (book.coverUrl != null) AsyncImage(model = book.coverUrl, contentDescription = book.title, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
             Text(book.icon, fontSize = 76.sp)
             Surface(Modifier.align(Alignment.BottomStart).padding(18.dp), color = Color(0xAA000000), shape = RoundedCornerShape(10.dp)) {
                 Text(book.category, color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp))

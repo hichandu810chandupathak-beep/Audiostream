@@ -93,6 +93,47 @@ object LocalAccountManager {
     fun logout(context: Context) {
         runCatching { prefs(context).edit().putBoolean(ACTIVE, false).remove(NAME).remove(IDENTIFIER).remove(GUEST).apply() }
     }
+    fun googleDemoSession(context: Context) {
+        runCatching { saveSession(prefs(context), "Google User", "google-demo@bookstream.local", false) }
+    }
+
+    fun signInPhoneOtp(context: Context, phone: String, otp: String): String? = try {
+        val normalized = normalize(phone)
+        when {
+            !phone.all { it.isDigit() || it in "+- ()" } || normalized.length !in 10..15 -> "Enter a valid phone number."
+            otp != "123456" -> "Invalid OTP. For demo testing use 123456."
+            else -> {
+                val p = prefs(context)
+                val key = prefix(normalized)
+                if (!p.contains(key + "name")) {
+                    val salt = Base64.encodeToString(ByteArray(16).also { SecureRandom().nextBytes(it) }, Base64.NO_WRAP)
+                    p.edit().putString(key + "name", "Phone User").putString(key + "identifier", normalized)
+                        .putString(key + "salt", salt).putString(key + "password", digest(salt + SecureRandom().nextLong().toString())).apply()
+                }
+                saveSession(p, p.getString(key + "name", "Phone User") ?: "Phone User", normalized, false)
+                null
+            }
+        }
+    } catch (_: Exception) { "Secure local storage is unavailable. Please try again." }
+
+    fun resetPassword(context: Context, identifier: String, newPassword: String): String? = try {
+        val normalized = normalize(identifier)
+        when {
+            !validIdentifier(identifier) -> "Enter the registered email or phone number."
+            newPassword.length < 6 -> "Password must contain at least 6 characters."
+            else -> {
+                val p = prefs(context)
+                val key = prefix(normalized)
+                if (!p.contains(key + "password") || !p.contains(key + "salt")) "No local account was found for that email or phone."
+                else {
+                    val salt = Base64.encodeToString(ByteArray(16).also { SecureRandom().nextBytes(it) }, Base64.NO_WRAP)
+                    p.edit().putString(key + "salt", salt).putString(key + "password", digest(salt + newPassword)).apply()
+                    null
+                }
+            }
+        }
+    } catch (_: Exception) { "Could not update the password in secure local storage." }
+
     fun savedBookIds(context: Context): Set<String> =
         runCatching { prefs(context).getStringSet(LIBRARY, emptySet())?.toSet() ?: emptySet() }.getOrDefault(emptySet())
     fun saveBookIds(context: Context, ids: Set<String>) {
