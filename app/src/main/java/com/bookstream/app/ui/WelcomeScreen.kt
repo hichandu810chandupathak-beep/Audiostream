@@ -58,15 +58,78 @@ private val Accent = Color(0xFFE50914)
 private val TextPrimary = Color(0xFFF7F7F8)
 private val TextSecondary = Color(0xFF9A9AA3)
 
+private enum class AppRoute { Welcome, Auth, Home, Detail }
+
 @Composable
 fun BookStreamRoot() {
-    var showBrowse by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val preferences = remember(context) { context.getSharedPreferences("bookstream_session", Context.MODE_PRIVATE) }
+    var route by remember {
+        mutableStateOf(if (preferences.getBoolean("session_active", false)) AppRoute.Home else AppRoute.Welcome)
+    }
+    var selectedBookId by remember { mutableStateOf(BookData.catalog.first().id) }
+    var currentBookId by remember { mutableStateOf(BookData.catalog.first().id) }
+    var isPlaying by remember { mutableStateOf(false) }
+    var libraryIds by remember { mutableStateOf(setOf<String>()) }
+    val narrator = remember { AudioNarratorManager(context.applicationContext) }
 
-    Crossfade(targetState = showBrowse, label = "welcomeToHome") { showHome ->
-        if (showHome) {
-            HomeScreen()
-        } else {
-            WelcomeScreen(onGetStarted = { showBrowse = true })
+    DisposableEffect(narrator) {
+        narrator.setStateListener { playing, id ->
+            isPlaying = playing
+            if (id != null) currentBookId = id
+        }
+        onDispose {
+            narrator.setStateListener(null)
+            narrator.release()
+        }
+    }
+
+    Crossfade(targetState = route, label = "bookStreamNavigation") { screen ->
+        when (screen) {
+            AppRoute.Welcome -> WelcomeScreen(onGetStarted = { route = AppRoute.Auth })
+            AppRoute.Auth -> AuthScreen(
+                onContinue = { rememberSession ->
+                    preferences.edit().putBoolean("session_active", rememberSession).apply()
+                    route = AppRoute.Home
+                },
+                onGuest = { route = AppRoute.Home }
+            )
+            AppRoute.Home -> HomeScreen(
+                currentBookId = currentBookId,
+                isPlaying = isPlaying,
+                libraryIds = libraryIds,
+                onBookClick = { id -> selectedBookId = id; route = AppRoute.Detail },
+                onPlay = { id ->
+                    BookData.find(id)?.let { book ->
+                        currentBookId = id
+                        isPlaying = true
+                        narrator.speak(book.fullStoryText, id, book.languageTag)
+                    }
+                },
+                onPause = { narrator.pause(); isPlaying = false },
+                onResume = {
+                    BookData.find(currentBookId)?.let { book ->
+                        narrator.resumeOrSpeak(book.fullStoryText, currentBookId, book.languageTag)
+                        isPlaying = true
+                    }
+                },
+                onLibraryClick = { id -> libraryIds = if (id in libraryIds) libraryIds - id else libraryIds + id }
+            )
+            AppRoute.Detail -> BookDetailScreen(
+                bookId = selectedBookId,
+                isPlaying = isPlaying && currentBookId == selectedBookId,
+                isInLibrary = selectedBookId in libraryIds,
+                onBack = { route = AppRoute.Home },
+                onPlay = { id ->
+                    BookData.find(id)?.let { book ->
+                        currentBookId = id
+                        isPlaying = true
+                        narrator.speak(book.fullStoryText, id, book.languageTag)
+                    }
+                },
+                onPause = { narrator.pause(); isPlaying = false },
+                onToggleLibrary = { id -> libraryIds = if (id in libraryIds) libraryIds - id else libraryIds + id }
+            )
         }
     }
 }
