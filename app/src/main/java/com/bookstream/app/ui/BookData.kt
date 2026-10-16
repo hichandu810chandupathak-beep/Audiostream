@@ -6,67 +6,145 @@ data class BookItem(
     val id: String, val title: String, val author: String, val category: String,
     val duration: String, val synopsis: String, val fullStoryText: String,
     val coverColor: Color, val icon: String, val languageTag: String = "hi-IN"
-)
+) {
+    val languageName: String get() = when {
+        languageTag.startsWith("hi") -> "हिंदी"
+        languageTag.startsWith("en") -> "English"
+        languageTag.startsWith("sa") -> "संस्कृत"
+        languageTag.startsWith("ur") -> "उर्दू"
+        languageTag.startsWith("mr") -> "मराठी"
+        languageTag.startsWith("bn") -> "বাংলা"
+        else -> languageTag
+    }
+}
 
-/** The narration strings are original summaries/intros, not full copyrighted editions. */
+/** Original Hindi retellings, literary commentary and multilingual original stories. */
 object BookData {
     val catalog = listOf(
-        BookItem("godan","Godan","Munshi Premchand","Novel · Upanyas","12 hr 20 min",
-            "Hori's longing for a cow becomes a moving portrait of rural debt, dignity and inequality.",
-            "Welcome to BookStream. Today we explore Godan by Munshi Premchand. At the heart of this classic is Hori, a poor farmer who dreams of owning a cow, a symbol of prosperity and respect in his village. His family faces debt, social pressure and difficult choices. Through Hori and those around him, Premchand observes compassion, ambition, hypocrisy and the dignity of ordinary people. This is an original summary, not the complete novel.",
-            Color(0xFF76523D),"📖"),
-        BookItem("gaban","Gaban","Munshi Premchand","Novel · Upanyas","9 hr 10 min",
-            "A social novel exploring vanity, financial pressure and the consequences of maintaining appearances.",
-            "Gaban by Munshi Premchand examines the pressure to appear wealthy and successful. Ramanath wants to satisfy expectations surrounding him, especially those connected with jewellery and status. Small compromises grow into serious trouble, and the story asks how fear and pride can trap a person. This original introduction reflects on honesty, responsibility and the cost of appearances.",
-            Color(0xFF526C83),"📚"),
-        BookItem("nirmala","Nirmala","Munshi Premchand","Novel · Upanyas","8 hr 45 min",
-            "A young woman's life is shaped by unequal marriage customs, social pressure and suspicion.",
-            "Nirmala portrays the harm caused by dowry pressure, mismatched marriage and mistrust. A young woman's hopes are narrowed by decisions made around her, while suspicion steadily damages a family. The novel asks readers to look beyond individual blame toward customs and expectations that leave people vulnerable. This is an original summary, not a full reproduction of the novel.",
-            Color(0xFF8A5B68),"🌹"),
-        BookItem("rashmirathi","Rashmirathi","Ramdhari Singh Dinkar","Poetry · Kavitayein","3 hr 40 min",
-            "A celebrated epic poem retelling Karna's story through honour, identity and justice.",
-            "Rashmirathi by Ramdhari Singh Dinkar brings Karna to the centre of the Mahabharata's moral world. Born with extraordinary gifts but denied easy acceptance, Karna navigates loyalty, honour and social injustice. Dinkar invites us to consider whether worth should be judged by birth or by courage and generosity. This original introduction discusses themes without reproducing the poem's verses.",
-            Color(0xFF9B542E),"☀️"),
-        BookItem("madhushala","Madhushala","Harivansh Rai Bachchan","Poetry · Ghazal","2 hr 15 min",
-            "A landmark Hindi poetic work using the tavern as a symbol for life, fellowship and meaning.",
-            "Madhushala by Harivansh Rai Bachchan is famous for its recurring images of the cup, the traveller and the tavern. These images can suggest joy, mortality, fellowship and the many paths people take toward meaning. Its musical rhythm helped make it one of modern Hindi poetry's best-known works. This original introduction explores symbolism without quoting protected verses.",
-            Color(0xFF7C3E4C),"🍷"),
-        BookItem("mahadevi","Selected Life & Poetry","Mahadevi Verma","Poetry · Essays","2 hr 30 min",
-            "An introduction to the Chhayavaad poet and essayist, known for lyrical inwardness and compassion.",
-            "Mahadevi Verma was a major voice in modern Hindi literature. Her poetry often turns toward longing, solitude, nature and the search for an inner light. Her prose reflects compassion for living beings and attention to women's lives. This original biographical narration introduces broad themes and her lasting place in Hindi letters.",
-            Color(0xFF566D85),"🪷"),
-        BookItem("idgah","Idgah","Munshi Premchand","Short Story · Kahani","25 min",
-            "A young boy's thoughtful choice at a village fair becomes a story about love and sacrifice.",
-            "At a village fair, a young boy named Hamid has only a few coins to spend. While other children choose sweets and toys, he thinks about the pain his grandmother feels when handling hot utensils. His decision to buy a practical gift reveals a tenderness money cannot measure. Idgah endures because it shows how a child's love can turn a small object into a profound act of care. This is an original retelling.",
-            Color(0xFF527A63),"🧒"),
-        BookItem("kafan","Kafan","Munshi Premchand","Short Story · Kahani","35 min",
-            "A stark social story about poverty, hunger and moral numbness under relentless deprivation.",
-            "Kafan by Munshi Premchand is one of the most unsettling stories in Hindi literature. Through Ghisu and Madhav, it depicts extreme poverty and a world in which repeated suffering has distorted ordinary responses to grief. Its painful irony asks how deprivation can erode dignity and compassion. This is a thematic narration, not the original story text.",
-            Color(0xFF57515C),"🌑"),
-        BookItem("namak","Namak Ka Daroga","Munshi Premchand","Short Story · Kahani","30 min",
-            "An honest official resists bribery and discovers integrity may be valued in unexpected ways.",
-            "In Namak Ka Daroga, an upright salt inspector faces pressure from wealth and influence. His refusal to accept a bribe costs him comfort and status, yet his honesty leaves a lasting impression. The story contrasts official power with moral courage and asks what integrity is worth in a society tempted by corruption.",
-            Color(0xFF756A45),"⚖️"),
-        BookItem("tirichh","Tirichh — Story Introduction","Uday Prakash","Modern Short Fiction","20 min",
-            "An introduction to Uday Prakash's modern short fiction and its unsettling social atmosphere.",
-            "Uday Prakash is known for modern Hindi fiction that blends everyday detail with unease, memory and social criticism. This original introduction places Tirichh within a wider discussion of how contemporary stories can reveal invisible structures of fear and power. It does not reproduce the copyrighted story.",
-            Color(0xFF4D6475),"🌒"),
-        BookItem("tagore","Selected Stories & Poems","Rabindranath Tagore","World Literature","2 hr 50 min",
-            "A doorway into Tagore's humanist writing, rich with nature, longing, family and freedom of spirit.",
-            "Rabindranath Tagore was a poet, novelist, composer and thinker whose work crossed linguistic and cultural boundaries. His writing explores the relationship between individuals and society, the natural world, and human dignity. This original introduction offers a starting point for exploring his legacy without reproducing protected translations.",
-            Color(0xFF426B62),"🌿","en-IN"),
-        BookItem("wings","Wings of Fire — Overview","A. P. J. Abdul Kalam","Biography","45 min",
-            "A concise introduction to the life, scientific work and public service of India's former president.",
-            "A. P. J. Abdul Kalam's life is remembered as a journey from a modest childhood in Rameswaram to contributions to India's aerospace programmes and later the presidency. His story highlights curiosity, teamwork, discipline and education. This original overview introduces key themes without reproducing his autobiography.",
-            Color(0xFF466A91),"🚀","en-IN"),
-        BookItem("bhagat","Bhagat Singh: A Life","Biographical overview","Biography · History","40 min",
-            "An introductory portrait of the revolutionary whose writings became part of India's independence movement.",
-            "Bhagat Singh became a defining figure in India's anticolonial struggle. His writings show a young thinker concerned with freedom, justice, political responsibility and ideas. This original biographical introduction places his life in historical context and encourages further study from reliable historical sources.",
-            Color(0xFF866047),"✊","en-IN"),
-        BookItem("deepwork","Deep Work — Overview","Cal Newport","Business · Productivity","35 min",
-            "A practical overview of focused work, distraction management and sustained concentration.",
-            "This original overview introduces the central idea associated with Deep Work: focused, distraction-resistant effort is valuable in a world full of interruptions. It suggests protecting blocks of concentration, setting clear goals and building routines that make demanding work easier to begin. This is a summary, not a substitute for the book's full text.",
-            Color(0xFF385B7C),"🎯","en-IN")
+        BookItem("idgah", "ईदगाह", "मुंशी प्रेमचंद", "कहानियाँ · Short Stories", "25 मिनट",
+            "हामिद का छोटा-सा उपहार प्रेम, संवेदना और त्याग की बड़ी कहानी बन जाता है।",
+            """ईद की सुबह गाँव की कच्ची गलियों पर धूप धीरे-धीरे उतर रही थी। घरों में हलचल थी, बच्चों की आँखों में मेले के सपने थे और बड़े लोग अपनी तैयारियों में लगे थे। छोटे हामिद के पास न नए कपड़े थे, न जेब में बहुत पैसे। उसके पास जो थोड़े-से सिक्के थे, वे उसे किसी खज़ाने से कम नहीं लगते थे। उसकी दादी अमीना ने उसे प्यार से समझाया कि मेले में संभलकर रहना और लौटते समय रास्ता न भूलना।
+
+हामिद अपने साथियों के साथ मेले की ओर चला। रास्ते में बच्चे बड़े मकानों, दुकानों और सजी हुई चीज़ों को देखकर बातें करते रहे। किसी को खिलौना सिपाही चाहिए था, किसी को मिट्टी की गुड़िया, किसी को मिठाई। हामिद भी उन रंगों को देखकर खुश था, पर उसके मन में दादी का चेहरा बार-बार उभर आता था। घर में रोटी बनाते समय दादी की उँगलियाँ तवे से जल जाती थीं। उसने सोचा कि अगर वह ऐसा सामान ले जाए जिससे दादी के हाथ न जलें, तो वही सबसे अच्छा उपहार होगा।
+
+मेले में मिठाइयों की सुगंध हवा में तैर रही थी। खिलौनों की दुकान पर रंग-बिरंगे घोड़े, सिपाही और छोटी-छोटी गुड़ियाँ रखी थीं। बच्चे अपने सिक्के खर्च कर रहे थे। हामिद ने अपनी मुट्ठी खोली, सिक्के गिने और फिर आगे बढ़ गया। लोहे की दुकान पर चिमटे रखे थे। दुकानदार ने पहले उसे बच्चा समझकर टालना चाहा, लेकिन हामिद ने समझदारी से मोलभाव किया। अंततः उसने चिमटा खरीद लिया। उसके साथियों को यह चुनाव अजीब लगा। किसी ने कहा कि इससे खेल कैसे होगा, किसी ने अपनी मिठाई दिखाकर चिढ़ाया। हामिद ने मुस्कराकर कहा कि उसका चिमटा आग से लड़ सकता है, रोटी पलट सकता है और दादी के हाथ बचा सकता है।
+
+लौटते समय बच्चों की खुशी और शोर में हामिद का चिमटा भी किसी बहादुर साथी की तरह चमक रहा था। घर पहुँचकर अमीना ने चिमटा देखा तो पहले हैरान हुई, फिर उसकी आँखें भर आईं। उसने सोचा था कि बच्चा अपने लिए मिठाई या खिलौना लाएगा, पर वह उसकी तकलीफ़ याद रखकर आया था। हामिद को शायद उस क्षण अपनी जीत का पूरा अर्थ समझ नहीं आया, मगर दादी के चेहरे पर उमड़ा प्यार उसके लिए किसी भी खिलौने से बड़ा पुरस्कार था।
+
+यह प्रेमचंद की प्रसिद्ध कहानी के मूल भाव से प्रेरित स्वतंत्र हिंदी पुनर्कथन है, मूल कहानी का शब्दशः पाठ नहीं। यह याद दिलाता है कि उपहार का मूल्य उसकी कीमत से नहीं, उसके पीछे मौजूद प्रेम से तय होता है।""",
+            Color(0xFF527A63), "🧒"),
+        BookItem("kafan", "कफ़न", "मुंशी प्रेमचंद", "कहानियाँ · Short Stories", "30 मिनट",
+            "अत्यधिक गरीबी और सामाजिक उपेक्षा मनुष्य की संवेदना को किस तरह घायल करती है।",
+            """सर्द रात थी। टूटी झोंपड़ी के भीतर बुझती आग की राख में कुछ अंगारे अब भी लाल थे। बाहर हवा चल रही थी और भीतर घीसू तथा माधव अपने-अपने विचारों में डूबे बैठे थे। घर में प्रसव-वेदना से कराहती बुधिया थी, लेकिन भूख और लंबे अभाव ने इस परिवार के जीवन को ऐसी कठोरता से घेर लिया था कि दुख के सामने भी उनकी प्रतिक्रिया असामान्य दिखाई देती थी।
+
+घीसू का जीवन मेहनत से अधिक अनुभवों और बहानों के सहारे बीता था। माधव भी उसी रास्ते पर चल पड़ा था। गाँव के लोग उन्हें अविश्वसनीय समझते थे, पर कहानी केवल उनकी कमज़ोरियों का हिसाब नहीं लगाती; वह उस वातावरण को भी सामने रखती है जिसमें भूख रोज़ की साथी हो, काम का फल अनिश्चित हो और अपमान जीवन का सामान्य हिस्सा बन जाए। ऐसे संसार में मनुष्य कभी-कभी अपने ही दुख से बचने के लिए भीतर से सुन्न होने लगता है।
+
+सुबह जब सच सामने आया, तो घर में शोक के साथ एक भारी खालीपन था। बुधिया अब नहीं रही। गाँव में खबर फैली और अंतिम संस्कार के लिए कफ़न का प्रबंध करने की बात उठी। दोनों पुरुष सहायता माँगने निकले। लोगों ने कुछ पैसे दिए; किसी ने दया से, किसी ने सामाजिक कर्तव्य समझकर। उन पैसों से ऐसा कपड़ा खरीदा जाना था जो मृत देह को ढँक सके और परिवार को अंतिम विदाई का सहारा दे सके।
+
+लेकिन बाज़ार की ओर बढ़ते हुए भूख, निराशा और तत्काल सुख की लालसा उनके सामने खड़ी हो गई। कहानी का सबसे कड़वा प्रश्न यहीं पैदा होता है: क्या उनका निर्णय केवल नैतिक पतन है, या उस व्यवस्था का भयावह परिणाम भी है जिसमें जीवित मनुष्य की भूख मृतक के सम्मान से बड़ी हो जाती है? प्रेमचंद पाठक को आरामदेह उत्तर नहीं देते। वे ऐसी विडंबना रचते हैं जिसमें हँसी और घृणा के पीछे सामाजिक अपराध-बोध छिपा है।
+
+कफ़न की शक्ति उसकी असुविधाजनक सच्चाई में है। यह गरीबी को सुंदर नहीं बनाती, न ही हर अन्याय का दोष किसी एक व्यक्ति पर रखती है। यह पूछती है कि जब मनुष्य लगातार अपमानित और भूखा रखा जाता है, तो समाज उससे किस तरह की संवेदना की अपेक्षा कर सकता है। यह विस्तृत हिंदी कथात्मक परिचय है, मूल कहानी का शब्दशः पाठ नहीं।""",
+            Color(0xFF57515C), "🌑"),
+        BookItem("namak", "नमक का दरोगा", "मुंशी प्रेमचंद", "कहानियाँ · Short Stories", "28 मिनट",
+            "ईमानदारी, रिश्वत और प्रतिष्ठा के बीच खड़े एक अधिकारी की नैतिक परीक्षा।",
+            """नमक पर कर और उसके व्यापार के नियमों ने आम लोगों के जीवन को कठिन बना दिया था। ऐसे समय में नमक विभाग का दरोगा होना केवल नौकरी नहीं, बल्कि अधिकार और प्रलोभन के बीच रोज़ खड़े रहने जैसा था। इस कथा के केंद्र में ऐसा अधिकारी है जो अपनी जिम्मेदारी को केवल तनख़्वाह पाने का साधन नहीं मानता। उसके लिए नियम और ईमानदारी का अर्थ निजी सुविधा से बड़ा है।
+
+नौकरी के संसार में उसे जल्दी ही पता चलता है कि धन और प्रभाव रखने वाले लोग कानून को अपने पक्ष में मोड़ने की कोशिश करते हैं। रिश्वत को कई लोग व्यवहार-कुशलता समझते हैं; ईमानदार व्यक्ति को मूर्ख कहकर हँसते हैं। लेकिन दरोगा अपने कर्तव्य से पीछे हटने को तैयार नहीं होता। उसकी दृढ़ता उसे तत्काल लाभ से दूर कर देती है और उसके सामने कठिनाइयाँ खड़ी कर देती हैं। घर-परिवार की अपेक्षाएँ और समाज की व्यावहारिक सलाह उसे समझौता करने को कहती हैं, फिर भी वह अपने निर्णय पर अडिग रहता है।
+
+कथा का रोचक मोड़ यह है कि ईमानदारी का मूल्य हमेशा उसी क्षण नहीं मिलता जब उसे निभाया जाता है। कभी-कभी जिस व्यक्ति को संसार असफल समझता है, वही अपने चरित्र से दूसरों का सम्मान जीत लेता है। प्रेमचंद इस विचार को पात्रों के व्यवहार और परिस्थितियों से उभारते हैं। यह मूल कहानी का शब्दशः संस्करण नहीं, बल्कि उसके नैतिक प्रश्नों पर आधारित स्वतंत्र हिंदी कथारूप है।""",
+            Color(0xFF756A45), "⚖️"),
+        BookItem("godan", "गोदान — पाठकीय परिचय", "मुंशी प्रेमचंद", "उपन्यास · Novels", "परिचय · 20 मिनट",
+            "होरी के सपने के माध्यम से किसान जीवन, कर्ज़, सम्मान और सामाजिक असमानता पर विचार।",
+            """होरी एक साधारण किसान है, लेकिन उसका सपना साधारण नहीं लगता: वह गाय चाहता है, क्योंकि गाँव के जीवन में गाय केवल पशु नहीं, सम्मान, समृद्धि और परिवार की प्रतिष्ठा का प्रतीक बन जाती है। उसके सपने के साथ कर्ज़, रिश्तेदारी, सामाजिक दबाव और रोज़मर्रा की मजबूरियाँ जुड़ती जाती हैं। खेत पर मेहनत करने वाला व्यक्ति अपने श्रम का पूरा फल नहीं पा पाता, फिर भी परिवार को संभालने और समाज में इज़्ज़त बचाए रखने की कोशिश करता है।
+
+धनिया का चरित्र इस संसार में एक अलग दृढ़ता लाता है। वह घर की कठिनाइयों को साफ़ देखती है और कई बार उन बातों को कह देती है जिन्हें बाकी लोग दबाकर रखना चाहते हैं। होरी और धनिया के बीच मतभेद केवल पति-पत्नी के झगड़े नहीं हैं; वे आदर्श और वास्तविकता, सामाजिक प्रतिष्ठा और घर की ज़रूरतों, सहनशीलता और प्रतिरोध के बीच का संघर्ष भी हैं।
+
+प्रेमचंद ग्रामीण जीवन को किसी सुंदर चित्र की तरह नहीं दिखाते। उनके गाँव में मेहनत है, पर शोषण भी है; समुदाय है, पर भेदभाव भी; परंपरा है, पर उसकी आड़ में अन्याय भी। किसान का कर्ज़ केवल हिसाब-किताब नहीं, बल्कि पीढ़ियों तक चलने वाली निर्भरता बन जाता है। यह स्वतंत्र पाठकीय परिचय है, पूरा उपन्यास नहीं।""",
+            Color(0xFF76523D), "📖"),
+        BookItem("rashmirathi", "रश्मिरथी — कर्ण का संघर्ष", "रामधारी सिंह दिनकर", "कविताएँ व ग़ज़लें · Poetry", "परिचय · 15 मिनट",
+            "कर्ण की पहचान, दानशीलता, मित्रता और न्याय पर एक मौलिक हिंदी पाठकीय परिचय।",
+            """कर्ण महाभारत के उन पात्रों में है जिनकी प्रतिभा और पीड़ा एक-दूसरे से अलग नहीं की जा सकतीं। जन्म से मिली पहचान उसे स्वीकार नहीं करती, जबकि उसके भीतर युद्ध-कौशल, दानशीलता और सम्मान पाने की तीव्र इच्छा है। वह बार-बार अनुभव करता है कि समाज मनुष्य को उसके कर्म से पहले उसके जन्म और कुल से आँकता है।
+
+दिनकर की काव्य-दृष्टि में कर्ण केवल वीर योद्धा नहीं, बल्कि उस व्यक्ति का प्रतीक है जो अपनी योग्यता सिद्ध करने के बाद भी सामाजिक अवमानना से मुक्त नहीं हो पाता। उसकी मित्रता दुर्योधन से उसे मान देती है, लेकिन वही निष्ठा उसे ऐसे संघर्ष में बाँधती है जहाँ निजी कृतज्ञता और व्यापक नैतिक प्रश्न आमने-सामने आ जाते हैं।
+
+कर्ण की त्रासदी सरल चुनाव की त्रासदी नहीं है। यदि वह मित्रता छोड़ता है तो उपकारकर्ता के प्रति विश्वासघात का भय है; यदि वह साथ निभाता है तो अपने विवेक और धर्म के कठिन प्रश्न सामने आते हैं। यह स्वतंत्र गद्य-परिचय है, रश्मिरथी के मूल छंदों या किसी सर्ग का पुनरुत्पादन नहीं।""",
+            Color(0xFF9B542E), "☀️"),
+        BookItem("madhushala", "मधुशाला — प्रतीकों की यात्रा", "हरिवंश राय बच्चन", "कविताएँ व ग़ज़लें · Poetry", "परिचय · 14 मिनट",
+            "जीवन, समानता, मृत्यु और मानवीय संगति पर मधुशाला की काव्य-दृष्टि का परिचय।",
+            """मधुशाला की लोकप्रियता केवल उसके याद रह जाने वाले संगीत में नहीं है। उसकी छवियाँ पाठक को सोचने पर विवश करती हैं: प्याला किसका प्रतीक है, पथिक किस यात्रा पर है, और मधुशाला ऐसी कौन-सी जगह है जहाँ अलग-अलग जीवन-अनुभव एक साथ आ सकते हैं? बच्चन की काव्य-कल्पना रोज़मर्रा की वस्तुओं को अर्थ के कई स्तर देती है।
+
+किसी पाठक के लिए यह रचना जीवन का उत्सव है; किसी के लिए क्षणभंगुरता की स्वीकृति; किसी के लिए सामाजिक भेदों से परे मिलने-जुलने की कल्पना। एक ही प्रतीक अलग-अलग अनुभवों के अनुसार बदल सकता है। कविता का संगीत इस बहुअर्थता को यादगार बनाता है और पाठक को अपनी व्याख्या बनाने की जगह देता है।
+
+मनुष्य जीवन भर अर्थ, प्रेम, शांति या पहचान की खोज करता है। कभी उसे लगता है कि मंज़िल किसी दूर जगह पर है, कभी अनुभव होता है कि रास्ते में मिले लोगों के साथ ही खोज का अर्थ बनता है। यह स्वतंत्र आलोचनात्मक परिचय है, बच्चन की मूल कविता के छंदों का पाठ नहीं।""",
+            Color(0xFF7C3E4C), "🍷"),
+        BookItem("mahadevi", "महादेवी वर्मा: संवेदना का संसार", "महादेवी वर्मा", "कविताएँ व ग़ज़लें · Poetry", "परिचय · 14 मिनट",
+            "छायावाद, प्रकृति, एकांत और जीव-जगत के प्रति करुणा पर एक मौलिक पाठ।",
+            """महादेवी वर्मा की साहित्यिक दुनिया में मौन भी बोलता है। प्रकृति की कोई छाया, हवा का स्पर्श, दूर जाती ध्वनि या अकेलेपन का क्षण उनके काव्य-संसार में भीतर की अनुभूति का रूप ले सकता है। उनकी कविता में विरह केवल किसी व्यक्ति से दूर होने का नाम नहीं; वह उस गहरी खोज का संकेत भी है जिसमें मनुष्य अपने भीतर किसी अपूर्णता को पहचानता है।
+
+उनकी भाषा कोमल होते हुए भी दुर्बल नहीं है। उसमें आत्मसम्मान, संवेदना और अनुभव की गंभीरता है। प्रकृति उनके लिए केवल सजावट नहीं, बल्कि भावनाओं को समझने का एक जीवंत माध्यम है। बादल, दीप, पथ और रात जैसे बिंब मन की दशाओं से जुड़ते हैं और निजी अनुभव को व्यापक मानवीय अर्थ देते हैं।
+
+महादेवी वर्मा की गद्य-रचनाएँ भी करुणा की दृष्टि को विस्तृत करती हैं। वे उन जीवनों की ओर ध्यान ले जाती हैं जिन्हें समाज अक्सर अनदेखा करता है—विशेषकर स्त्रियों और अन्य जीवों की ओर। यह मौलिक व्याख्यात्मक पाठ है, किसी कविता का शब्दशः पुनरुत्पादन नहीं।""",
+            Color(0xFF566D85), "🪷"),
+        BookItem("prasad", "कामायनी — मनु और श्रद्धा", "जयशंकर प्रसाद", "उपन्यास · Novels", "परिचय · 14 मिनट",
+            "मन, भावना और कर्म के प्रतीकों के माध्यम से मनुष्य की मानसिक यात्रा का परिचय।",
+            """कामायनी हिंदी साहित्य की एक महत्वपूर्ण काव्य-रचना है जिसमें मिथकीय पात्रों और प्रसंगों के माध्यम से मनुष्य की मानसिक तथा भावनात्मक यात्रा पर विचार किया गया है। मनु, श्रद्धा और इड़ा जैसे पात्र मनुष्य के भीतर काम करने वाली अलग-अलग प्रवृत्तियों के प्रतीक भी समझे जा सकते हैं।
+
+प्रलय के बाद का संसार बाहरी विनाश के साथ भीतर की अनिश्चितता का संकेत देता है। जब पुराने सहारे टूट जाते हैं, तब मनुष्य को नए अर्थ और नए संबंध बनाने पड़ते हैं। श्रद्धा भावनात्मक विश्वास और जीवन के प्रति स्वीकार का पक्ष सामने लाती है, जबकि इड़ा विचार, व्यवस्था और विवेक की दिशा में ध्यान खींचती है। इन प्रवृत्तियों के बीच संतुलन खोजने का प्रश्न रचना के केंद्र में है।
+
+प्रसाद की काव्य-भाषा में दर्शन और सौंदर्य साथ-साथ चलते हैं। यह मौलिक पाठकीय परिचय है, मूल महाकाव्य का पूर्ण पाठ नहीं।""",
+            Color(0xFF6D5B83), "🌊"),
+        BookItem("tagore", "गीतांजलि — प्रार्थना और प्रकृति", "रवीन्द्रनाथ ठाकुर", "कविताएँ व ग़ज़लें · Poetry", "परिचय · 12 मिनट",
+            "आध्यात्मिकता, प्रकृति और मानवीय स्वतंत्रता पर टैगोर की काव्य-दृष्टि का परिचय।",
+            """रवीन्द्रनाथ ठाकुर के साहित्य में प्रकृति और मनुष्य के बीच गहरा संवाद दिखाई देता है। सुबह की रोशनी, नदी, खेत और हवा केवल दृश्य नहीं रहते; वे जीवन के प्रति विस्मय और विनम्रता जगाने वाले अनुभव बन जाते हैं। उनकी कविता में निजी प्रार्थना और संसार के प्रति खुलापन एक साथ उपस्थित हो सकते हैं।
+
+गीतांजलि का पाठ कई पाठकों के लिए आत्मा की स्वतंत्रता, भय से मुक्ति और जीवन के प्रति आभार का अनुभव है। इस काव्य-जगत में आध्यात्मिकता संसार से भागने का नाम नहीं; वह मनुष्य को दूसरों के दुख और गरिमा के प्रति अधिक सजग बनाने वाली दृष्टि भी हो सकती है। यह हिंदी में लिखा गया स्वतंत्र परिचय है, गीतांजलि का मूल पाठ या प्रकाशित अनुवाद नहीं।""",
+            Color(0xFF426B62), "🌿"),
+        BookItem("sanskrit", "हितोपदेश: नीति-कथाओं का परिचय", "संस्कृत साहित्य परंपरा", "कहानियाँ · Short Stories", "परिचय · 12 मिनट",
+            "मित्रता, विवेक और निर्णय पर आधारित संस्कृत नीति-साहित्य का परिचय।",
+            """संस्कृत नीति-साहित्य में पशु-पक्षियों और साधारण पात्रों की कथाओं के माध्यम से कठिन जीवन-प्रश्न सरल रूप में रखे जाते हैं। एक छोटा निर्णय मित्रता को बचा सकता है या संकट को बढ़ा सकता है। कोई पात्र केवल बल पर भरोसा करता है, दूसरा परिस्थिति को ध्यान से पढ़ता है, और तीसरा जल्दबाज़ी में अपने ही लाभ को नुकसान पहुँचा देता है।
+
+ऐसी कथाओं का उद्देश्य केवल नियम याद कराना नहीं है। वे पाठक को यह देखने का अवसर देती हैं कि बुद्धि का उपयोग किसलिए किया जा रहा है। यह आधुनिक हिंदी परिचय है, किसी एक संस्कृत अध्याय का शब्दशः अनुवाद नहीं।""",
+            Color(0xFF7A6B43), "🪔", "sa-IN"),
+        BookItem("urdu", "چراغ اور مسافر", "BookStream کی اصل کہانی", "کहानियाँ · Short Stories", "12 منٹ",
+            "ایک مسافر اور چراغ کی آزاد، اصل اردو کہانی۔",
+            """رات کے وقت ایک مسافر ایک چھوٹے سے گاؤں میں پہنچا۔ راستہ اندھیرا تھا اور ہوا کے جھونکے بار بار اس کے ہاتھ میں جلتے چراغ کو بجھانے کی کوشش کرتے تھے۔ گاؤں کے دروازے پر ایک بوڑھی عورت نے اسے دیکھا اور اپنے گھر کے صحن میں بیٹھنے کی دعوت دی۔
+
+مسافر نے پوچھا کہ جب ہر گھر میں روشنی ہے تو اس ایک چراغ کی اتنی حفاظت کیوں کی جاتی ہے۔ عورت نے جواب دیا کہ چراغ صرف راستہ نہیں دکھاتا؛ یہ یاد دلاتا ہے کہ اندھیرے کے وقت کسی کا ساتھ دینا بھی روشنی کی ایک شکل ہے۔
+
+صبح مسافر نے چراغ واپس کیا اور اپنے سفر پر روانہ ہوا۔ یہ BookStream کی لکھی ہوئی اصل اردو کہانی ہے۔""",
+            Color(0xFF5D5277), "🪔", "ur-IN"),
+        BookItem("marathi", "पावसाची वाट", "BookStream ची मूळ कथा", "कहानियाँ · Short Stories", "12 मिनिटे",
+            "गाव, पाऊस आणि आशेची एक स्वतंत्र मराठी कथा।",
+            """गावात अनेक दिवस पाऊस पडला नव्हता. शेतातील माती कोरडी झाली होती आणि विहिरीतील पाणी कमी होत होते. तरीही सईची आजी रोज सकाळी अंगण झाडून आकाशाकडे पाहत असे. तिच्या मते आशा ठेवणे म्हणजे पाऊस लगेच येईल असा हट्ट नव्हे; तर पाऊस येईपर्यंत जमेल ते काम करत राहणे.
+
+एका दिवशी गावातील मुलांनी एकत्र येऊन जुन्या पाणवठ्याची साफसफाई केली. काहींनी दगड बाजूला केले, काहींनी झाडांच्या मुळांना पाणी घातले. संध्याकाळी ढग जमले आणि हलका पाऊस सुरू झाला. मुलांना आनंद झाला, पण आजी म्हणाली की खरी गोष्ट पावसात नाही; तर पाऊस येण्यापूर्वी त्यांनी एकमेकांसाठी केलेल्या कामात आहे.
+
+ही BookStream साठी लिहिलेली स्वतंत्र मराठी कथा आहे. ती सहकार्य, संयम आणि आशेचा अर्थ सांगते.""",
+            Color(0xFF527D72), "🌧️", "mr-IN"),
+        BookItem("bengali", "আলোর জানালা", "BookStream-এর মৌলিক গল্প", "কहानियाँ · Short Stories", "12 মিনিট",
+            "একটি জানালা, এক প্রতিবেশী এবং ভাগ করে নেওয়া আশার গল্প।",
+            """ছোট্ট শহরের এক পুরোনো বাড়িতে মীরা থাকত। তার ঘরের জানালাটি সরু গলির দিকে খুলত। প্রতিদিন সকালে সে জানালার পাশে বসে বই পড়ত, আর পাশের বাড়ির বৃদ্ধ মানুষটি গাছের টবে জল দিতেন। দুজনের কখনও দীর্ঘ কথা হত না, তবু জানালার ওপার থেকে একটুখানি হাসি বিনিময় হত।
+
+একদিন ঝড়ে বৃদ্ধ মানুষের কয়েকটি টব ভেঙে গেল। মীরা নিজের বই বন্ধ করে নিচে নেমে এল। তারা মাটি জড়ো করল, ভাঙা টব সরাল, আর নতুন চারা লাগাল। কাজ শেষ হলে বৃদ্ধ মানুষটি বললেন, আলো শুধু জানালা দিয়ে ঘরে আসে না; কখনও মানুষের কাজের মধ্যেও আলো দেখা যায়।
+
+এই গল্পটি BookStream-এর জন্য লেখা একটি মৌলিক বাংলা গল্প।""",
+            Color(0xFF416E79), "🌱", "bn-IN"),
+        BookItem("english", "The Last Lamp", "A BookStream Original", "Short Stories", "10 min",
+            "An original English story about community, courage, and a light shared between neighbours.",
+            """When the power failed across the hillside, every window went dark except one. An old librarian had kept a small oil lamp burning beside the door of her reading room. People arrived one by one, carrying questions they could not solve alone: a student needed to finish a letter, a parent needed to read a medicine label, and a traveller needed to find the road home.
+
+The lamp did not make the night disappear. It made a small circle in which people could see one another and offer help. The student read aloud while the parent checked the label. The traveller drew a map in the dust, and someone else corrected the turn he had forgotten.
+
+By midnight the wind had quieted. Nobody remembered who had first brought the lamp, because everyone had helped protect its flame. This original BookStream story asks whether hope is a private possession or something people create when they share their skills.""",
+            Color(0xFF466A91), "🏮", "en-IN"),
+        BookItem("wings", "अब्दुल कलाम: सपनों से सेवा तक", "ए. पी. जे. अब्दुल कलाम", "जीवनी व निबंध · Biography", "परिचय · 12 मिनट",
+            "जिज्ञासा, शिक्षा, वैज्ञानिक सहयोग और सार्वजनिक सेवा पर एक मौलिक जीवनी-परिचय।",
+            """अब्दुल कलाम का जीवन इस बात की याद दिलाता है कि बड़े सपने अक्सर साधारण परिस्थितियों में जन्म लेते हैं। रामेश्वरम में बचपन, शिक्षा के लिए मेहनत, विज्ञान के प्रति जिज्ञासा और देश के तकनीकी कार्यक्रमों में योगदान—इन सभी चरणों में सीखने की इच्छा केंद्रीय रही। उनकी यात्रा को केवल व्यक्तिगत सफलता की कहानी मानना अधूरा होगा, क्योंकि वैज्ञानिक कार्य अनेक लोगों के सहयोग से आगे बढ़ता है।
+
+विज्ञान में असफल प्रयोग भी जानकारी देते हैं। कोई योजना पहली बार में सफल न हो तो प्रश्न पूछना, परिणाम समझना और टीम के साथ नया रास्ता खोजना आवश्यक है। कलाम की सार्वजनिक छवि में यही संदेश दिखाई देता है: ज्ञान का उद्देश्य केवल प्रतिष्ठा नहीं, बल्कि समाज के लिए उपयोगी काम करना भी है। यह मौलिक जीवनी-परिचय है, किसी प्रकाशित आत्मकथा का पूर्ण पाठ नहीं।""",
+            Color(0xFF466A91), "🚀")
     )
+    val languages = listOf("हिंदी", "English", "संस्कृत", "उर्दू", "मराठी", "বাংলা")
+    val categories = listOf("उपन्यास", "कविताएँ व ग़ज़लें", "कहानियाँ", "जीवनी व निबंध")
     fun find(id: String): BookItem? = catalog.firstOrNull { it.id == id }
 }

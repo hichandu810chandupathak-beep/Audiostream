@@ -61,16 +61,14 @@ private val TextSecondary = Color(0xFF9A9AA3)
 private enum class AppRoute { Welcome, Auth, Home, Detail }
 
 @Composable
-fun BookStreamRoot() {
+fun BookStreamRoot(initialSession: LocalUserSession? = null) {
     val context = LocalContext.current
-    val preferences = remember(context) { context.getSharedPreferences("bookstream_session", Context.MODE_PRIVATE) }
-    var route by remember {
-        mutableStateOf(if (preferences.getBoolean("session_active", false)) AppRoute.Home else AppRoute.Welcome)
-    }
+    var activeSession by remember { mutableStateOf(initialSession) }
+    var route by remember { mutableStateOf(if (initialSession != null) AppRoute.Home else AppRoute.Welcome) }
     var selectedBookId by remember { mutableStateOf(BookData.catalog.first().id) }
     var currentBookId by remember { mutableStateOf(BookData.catalog.first().id) }
     var isPlaying by remember { mutableStateOf(false) }
-    var libraryIds by remember { mutableStateOf(setOf<String>()) }
+    var libraryIds by remember { mutableStateOf(LocalAccountManager.savedBookIds(context)) }
     val narrator = remember { AudioNarratorManager(context.applicationContext) }
 
     DisposableEffect(narrator) {
@@ -88,16 +86,27 @@ fun BookStreamRoot() {
         when (screen) {
             AppRoute.Welcome -> WelcomeScreen(onGetStarted = { route = AppRoute.Auth })
             AppRoute.Auth -> AuthScreen(
-                onContinue = { rememberSession ->
-                    preferences.edit().putBoolean("session_active", rememberSession).apply()
-                    route = AppRoute.Home
+                onSubmit = { name, identifier, password, signUp ->
+                    val error = if (signUp) LocalAccountManager.register(context, name, identifier, password)
+                        else LocalAccountManager.signIn(context, identifier, password)
+                    if (error == null) {
+                        activeSession = LocalAccountManager.currentSession(context)
+                        route = AppRoute.Home
+                    }
+                    error
                 },
-                onGuest = { route = AppRoute.Home }
+                onGuest = {
+                    LocalAccountManager.signInGuest(context)
+                    activeSession = LocalAccountManager.currentSession(context)
+                    route = AppRoute.Home
+                }
             )
             AppRoute.Home -> HomeScreen(
                 currentBookId = currentBookId,
                 isPlaying = isPlaying,
                 libraryIds = libraryIds,
+                userDisplayName = activeSession?.name ?: "BookStream reader",
+                isGuest = activeSession?.isGuest ?: true,
                 onBookClick = { id -> selectedBookId = id; route = AppRoute.Detail },
                 onPlay = { id ->
                     BookData.find(id)?.let { book ->
@@ -113,7 +122,18 @@ fun BookStreamRoot() {
                         isPlaying = true
                     }
                 },
-                onLibraryClick = { id -> libraryIds = if (id in libraryIds) libraryIds - id else libraryIds + id }
+                onLibraryClick = { id ->
+                    val updated = if (id in libraryIds) libraryIds - id else libraryIds + id
+                    libraryIds = updated
+                    LocalAccountManager.saveBookIds(context, updated)
+                },
+                onLogout = {
+                    narrator.stop()
+                    LocalAccountManager.logout(context)
+                    activeSession = null
+                    isPlaying = false
+                    route = AppRoute.Auth
+                }
             )
             AppRoute.Detail -> BookDetailScreen(
                 bookId = selectedBookId,
@@ -128,7 +148,11 @@ fun BookStreamRoot() {
                     }
                 },
                 onPause = { narrator.pause(); isPlaying = false },
-                onToggleLibrary = { id -> libraryIds = if (id in libraryIds) libraryIds - id else libraryIds + id }
+                onToggleLibrary = { id ->
+                    val updated = if (id in libraryIds) libraryIds - id else libraryIds + id
+                    libraryIds = updated
+                    LocalAccountManager.saveBookIds(context, updated)
+                }
             )
         }
     }

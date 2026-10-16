@@ -25,12 +25,12 @@ private val HRed = Color(0xFFE50914)
 private val HMuted = Color(0xFF9A9AA3)
 
 @Composable
-fun HomeScreen(currentBookId: String, isPlaying: Boolean, libraryIds: Set<String>, onBookClick: (String) -> Unit, onPlay: (String) -> Unit, onPause: () -> Unit, onResume: () -> Unit, onLibraryClick: (String) -> Unit) {
+fun HomeScreen(currentBookId: String, isPlaying: Boolean, libraryIds: Set<String>, onBookClick: (String) -> Unit, onPlay: (String) -> Unit, onPause: () -> Unit, onResume: () -> Unit, onLibraryClick: (String) -> Unit, userDisplayName: String = "BookStream reader", isGuest: Boolean = true, onLogout: () -> Unit = {}) {
     var tab by remember { mutableIntStateOf(0) }
     var query by remember { mutableStateOf("") }
     var progress by remember { mutableFloatStateOf(.28f) }
     val current = BookData.find(currentBookId) ?: BookData.catalog.first()
-    val books = BookData.catalog.filter { it.title.contains(query, true) || it.author.contains(query, true) || it.category.contains(query, true) }
+    val books = BookData.catalog.filter { it.title.contains(query, true) || it.author.contains(query, true) || it.category.contains(query, true) || it.languageName.contains(query, true) }
     Scaffold(containerColor = HBg, bottomBar = {
         Column {
             Surface(color = Color(0xFF222228)) {
@@ -92,7 +92,7 @@ fun HomeScreen(currentBookId: String, isPlaying: Boolean, libraryIds: Set<String
                     BookSection("Top Narrators & Stories", BookData.catalog.filter { it.author == "Munshi Premchand" || it.author == "Rabindranath Tagore" || it.author == "Mahadevi Verma" || it.author == "A. P. J. Abdul Kalam" }, currentBookId, onBookClick)
                     Text("Categories", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(start = 20.dp, top = 14.dp, bottom = 12.dp))
                     LazyRow(contentPadding = PaddingValues(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        items(listOf("Self-Help", "Thriller", "Sci-Fi", "Business", "Upanyas", "Kavitayein", "Biography")) { category ->
+                        items(BookData.languages + BookData.categories) { category ->
                             Surface(color = Color(0xFF25252B), shape = RoundedCornerShape(20.dp), modifier = Modifier.clickable { query = category; tab = 1 }) {
                                 Text(category, color = Color.White, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp))
                             }
@@ -114,9 +114,11 @@ fun HomeScreen(currentBookId: String, isPlaying: Boolean, libraryIds: Set<String
                     Text("Your Profile", color = Color.White, fontSize = 25.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(20.dp))
                     Surface(color = Color(0xFF1B1B20), shape = RoundedCornerShape(20.dp), modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
                         Column(Modifier.padding(20.dp)) {
-                            Text("📚  BookStream listener", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                            Text("Your reading and listening space", color = HMuted, modifier = Modifier.padding(top = 8.dp))
+                            Text("📚  " + userDisplayName, color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                            Text(if (isGuest) "Guest session · this device" else "Local account · this device", color = HMuted, modifier = Modifier.padding(top = 8.dp))
                             Text(libraryIds.size.toString() + " saved books", color = Color(0xFFFF777F), modifier = Modifier.padding(top = 16.dp))
+                            Spacer(Modifier.height(18.dp))
+                            Button(onClick = onLogout, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(containerColor = HRed), shape = RoundedCornerShape(12.dp)) { Text("Log out", color = Color.White, fontWeight = FontWeight.Bold) }
                         }
                     }
                 }
