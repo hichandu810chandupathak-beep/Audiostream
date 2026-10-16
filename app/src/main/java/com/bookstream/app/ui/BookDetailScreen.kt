@@ -1,5 +1,9 @@
 package com.bookstream.app.ui
 
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.ui.platform.LocalContext
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -19,8 +23,9 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun BookDetailScreen(bookId: String, isPlaying: Boolean, isInLibrary: Boolean, onBack: () -> Unit,
-    onPlay: (String) -> Unit, onPause: () -> Unit, onToggleLibrary: (String) -> Unit) {
-    val book = BookData.find(bookId) ?: BookData.catalog.first()
+    onPlay: (String) -> Unit, onPause: () -> Unit, onToggleLibrary: (String) -> Unit, bookOverride: BookItem? = null) {
+    val context = LocalContext.current
+    val book = bookOverride ?: BookData.find(bookId) ?: BookData.catalog.first()
     var readerMode by remember(bookId) { mutableStateOf(false) }
     if (readerMode) {
         BookReaderScreen(book, isPlaying, { readerMode = false }, { onPlay(book.id) }, onPause)
@@ -45,6 +50,10 @@ fun BookDetailScreen(bookId: String, isPlaying: Boolean, isInLibrary: Boolean, o
             Text("लेखक: " + book.author, color = Color(0xFFFF777F), fontSize = 15.sp, modifier = Modifier.padding(top = 7.dp))
             Text("◷  " + book.duration + "   •   " + book.languageName, color = Color(0xFF9A9AA3), fontSize = 12.sp, modifier = Modifier.padding(top = 10.dp))
             Text(book.synopsis, color = Color(0xFFD0D0D6), fontSize = 15.sp, lineHeight = 24.sp, modifier = Modifier.padding(top = 16.dp))
+            if (book.isOnline && book.previewUrl != null) {
+                TextButton(onClick = { runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(book.previewUrl))) } }, modifier = Modifier.padding(top = 4.dp)) { Text("Open publisher / reading preview ↗", color = Color(0xFFFF777F)) }
+                Text("Online search APIs provide catalogue details and previews, not guaranteed full-book text. Narration here reads the available description until a lawful full-text edition is available.", color = Color(0xFF9A9AA3), fontSize = 11.sp, lineHeight = 16.sp, modifier = Modifier.padding(top = 4.dp))
+            }
             Spacer(Modifier.height(20.dp))
             Button(onClick = { if (isPlaying) onPause() else onPlay(book.id) }, modifier = Modifier.fillMaxWidth().height(52.dp),
                 shape = RoundedCornerShape(14.dp), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE50914))) {

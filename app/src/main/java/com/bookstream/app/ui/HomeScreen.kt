@@ -27,7 +27,7 @@ private val HRed = Color(0xFFE50914)
 private val HMuted = Color(0xFF9A9AA3)
 
 @Composable
-fun HomeScreen(currentBookId: String, isPlaying: Boolean, libraryIds: Set<String>, onBookClick: (String) -> Unit, onPlay: (String) -> Unit, onPause: () -> Unit, onResume: () -> Unit, onLibraryClick: (String) -> Unit, userDisplayName: String = "BookStream reader", isGuest: Boolean = true, onLogout: () -> Unit = {}) {
+fun HomeScreen(currentBookId: String, isPlaying: Boolean, libraryIds: Set<String>, onBookClick: (String) -> Unit, onPlay: (String) -> Unit, onPause: () -> Unit, onResume: () -> Unit, onLibraryClick: (String) -> Unit, userDisplayName: String = "BookStream reader", isGuest: Boolean = true, onLogout: () -> Unit = {}, onlineResults: List<BookItem> = emptyList(), onSearchOnline: (String) -> Unit = {}, onlineError: String? = null) {
     var tab by remember { mutableIntStateOf(0) }
     var query by remember { mutableStateOf("") }
     var progress by remember { mutableFloatStateOf(.28f) }
