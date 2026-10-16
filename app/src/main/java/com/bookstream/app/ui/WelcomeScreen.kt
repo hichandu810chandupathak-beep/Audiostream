@@ -3,6 +3,7 @@ package com.bookstream.app.ui
 import android.content.Context
 import android.media.MediaPlayer
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -61,10 +62,12 @@ private val TextSecondary = Color(0xFF9A9AA3)
 fun BookStreamRoot() {
     var showBrowse by remember { mutableStateOf(false) }
 
-    if (showBrowse) {
-        BrowsePlaceholder(onBack = { showBrowse = false })
-    } else {
-        WelcomeScreen(onGetStarted = { showBrowse = true })
+    Crossfade(targetState = showBrowse, label = "welcomeToHome") { showHome ->
+        if (showHome) {
+            HomeScreen()
+        } else {
+            WelcomeScreen(onGetStarted = { showBrowse = true })
+        }
     }
 }
 
