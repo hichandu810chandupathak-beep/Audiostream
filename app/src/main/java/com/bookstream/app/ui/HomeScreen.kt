@@ -104,7 +104,10 @@ fun HomeScreen(currentBookId: String, isPlaying: Boolean, libraryIds: Set<String
                 1 -> {
                     Text("Discover", color = Color.White, fontSize = 25.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(20.dp))
                     OutlinedTextField(value = query, onValueChange = { query = it }, modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp), label = { Text("Search books, authors, categories") }, singleLine = true)
-                    BookSection("Search Results", books, currentBookId, onBookClick)
+                    Button(onClick = { onSearchOnline(query) }, modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp), colors = ButtonDefaults.buttonColors(containerColor = HRed)) { Text("Search Google Books + Open Library", color = Color.White) }
+                    BookSection("Offline & Curated Results", books, currentBookId, onBookClick)
+                    if (onlineError != null) Text(onlineError, color = Color(0xFFFF777F), fontSize = 12.sp, modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp))
+                    BookSection("Online Book Results", onlineResults, currentBookId, onBookClick)
                 }
                 2 -> {
                     Text("My Library", color = Color.White, fontSize = 25.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(20.dp))
